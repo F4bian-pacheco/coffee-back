@@ -4,6 +4,7 @@ import cl.ucm.coffee.persitence.entity.CoffeeEntity;
 import cl.ucm.coffee.persitence.entity.TestimonialsEntity;
 import cl.ucm.coffee.persitence.repository.CoffeeRepository;
 import cl.ucm.coffee.service.dto.CoffeeDTO;
+import cl.ucm.coffee.service.dto.CoffeeTestDto;
 import cl.ucm.coffee.service.dto.TestimonialDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,32 @@ public class CoffeeService implements  ICoffeeService{
             coffeeDTO.setPrice(coffeeEntity.getPrice());
             coffeeDTO.setImage64(coffeeEntity.getImage64());
 
-            // Convertir testimonios si es necesario
-//            List<TestimonialDTO> testimonialDTOs = convertTestimonialsToDTOs(coffeeEntity.getTestimonials());
+             //Convertir testimonios si es necesario
+//            List<TestimonialDTO> testimonialDTOs = convertTestimonialsToDTOs(coffeeEntity.getTestimonials(),coffeeEntity.getIdCoffee());
 //            coffeeDTO.setTestimonials(testimonialDTOs);
-
+//
             coffeeDTOs.add(coffeeDTO);
+        }
+
+        return coffeeDTOs;
+    }
+
+    public List<CoffeeTestDto> findAllWithTests(){
+        List<CoffeeEntity> coffeeEntities = coffeeRepository.findAll();
+        List<CoffeeTestDto> coffeeDTOs = new ArrayList<>();
+
+        for (CoffeeEntity coffeeEntity : coffeeEntities) {
+            CoffeeTestDto coffeeTestDTO = new CoffeeTestDto();
+            coffeeTestDTO.setIdCoffee(coffeeEntity.getIdCoffee());
+            coffeeTestDTO.setName(coffeeEntity.getName());
+            coffeeTestDTO.setDescription(coffeeEntity.getDescription());
+            coffeeTestDTO.setPrice(coffeeEntity.getPrice());
+            coffeeTestDTO.setImage64(coffeeEntity.getImage64());
+
+            //Convertir testimonios si es necesario
+            List<TestimonialDTO> testimonialDTOs = convertTestimonialsToDTOs(coffeeEntity.getTestimonials(),coffeeEntity.getIdCoffee());
+            coffeeTestDTO.setTestimonials(testimonialDTOs);
+            coffeeDTOs.add(coffeeTestDTO);
         }
 
         return coffeeDTOs;
@@ -88,7 +110,7 @@ public class CoffeeService implements  ICoffeeService{
     }
 
     // Método para convertir TestimonialsEntity a TestimonialDTO
-    private List<TestimonialDTO> convertTestimonialsToDTOs(List<TestimonialsEntity> testimonials) {
+    private List<TestimonialDTO> convertTestimonialsToDTOs(List<TestimonialsEntity> testimonials, int coffeeId) {
         List<TestimonialDTO> testimonialDTOs = new ArrayList<>();
 
         for (TestimonialsEntity testimonialEntity : testimonials) {
@@ -96,6 +118,7 @@ public class CoffeeService implements  ICoffeeService{
             testimonialDTO.setIdTestimonials(testimonialEntity.getIdTestimonials());
             testimonialDTO.setTestimonial(testimonialEntity.getTestimonial());
             testimonialDTO.setUsername(testimonialEntity.getUsername());
+            testimonialDTO.setIdCoffee(coffeeId);
 
             testimonialDTOs.add(testimonialDTO);
         }
