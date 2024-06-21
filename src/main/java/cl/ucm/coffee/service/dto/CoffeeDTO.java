@@ -15,5 +15,5 @@ public class CoffeeDTO {
     private String description;
     private int price;
     private String image64;
-    private List<TestimonialDTO> testimonials;
+//    private List<TestimonialDTO> testimonials;
 }

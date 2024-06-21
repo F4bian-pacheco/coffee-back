@@ -8,5 +8,9 @@ import java.util.List;
 
 public interface ICoffeeService {
     public List<CoffeeDTO> findAll();
+    public void saveCoffee(CoffeeDTO coffeeDTO);
+    public void deleteCoffee(Integer coffeeId);
+    public CoffeeDTO findById(Integer coffeeId);
+    public CoffeeEntity updateCoffee(CoffeeDTO coffeeDTO, Integer coffeeId);
 
 }

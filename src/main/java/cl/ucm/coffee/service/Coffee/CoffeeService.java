@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CoffeeService implements  ICoffeeService{
@@ -30,13 +31,60 @@ public class CoffeeService implements  ICoffeeService{
             coffeeDTO.setImage64(coffeeEntity.getImage64());
 
             // Convertir testimonios si es necesario
-            List<TestimonialDTO> testimonialDTOs = convertTestimonialsToDTOs(coffeeEntity.getTestimonials());
-            coffeeDTO.setTestimonials(testimonialDTOs);
+//            List<TestimonialDTO> testimonialDTOs = convertTestimonialsToDTOs(coffeeEntity.getTestimonials());
+//            coffeeDTO.setTestimonials(testimonialDTOs);
 
             coffeeDTOs.add(coffeeDTO);
         }
 
         return coffeeDTOs;
+    }
+
+    @Override
+    public CoffeeDTO findById(Integer coffeeId) {
+        Optional<CoffeeEntity> coffeeEntity = coffeeRepository.findById(coffeeId);
+        CoffeeDTO coffeeDTO = new CoffeeDTO();
+        if(coffeeEntity.isPresent()){
+            coffeeDTO.setIdCoffee(coffeeEntity.get().getIdCoffee());
+            coffeeDTO.setName(coffeeEntity.get().getName());
+            coffeeDTO.setDescription(coffeeEntity.get().getDescription());
+            coffeeDTO.setPrice(coffeeEntity.get().getPrice());
+            coffeeDTO.setImage64(coffeeEntity.get().getImage64());
+            return coffeeDTO;
+        }else{
+            return null;
+        }
+    }
+
+    public void saveCoffee(CoffeeDTO coffeeDTO){
+        CoffeeEntity coffeeEntity = new CoffeeEntity();
+        coffeeEntity.setName(coffeeDTO.getName());
+        coffeeEntity.setDescription(coffeeDTO.getDescription());
+        coffeeEntity.setPrice(coffeeDTO.getPrice());
+        coffeeEntity.setImage64(coffeeDTO.getImage64());
+        coffeeRepository.save(coffeeEntity);
+    }
+
+    public void deleteCoffee(Integer idCoffee){
+        coffeeRepository.deleteById(idCoffee);
+    }
+
+    public CoffeeEntity updateCoffee(CoffeeDTO coffeeDTO, Integer idCoffee){
+        Optional<CoffeeEntity> coffeeEntity = coffeeRepository.findById(idCoffee);
+        if(coffeeEntity.isPresent()){
+            CoffeeEntity coffeeEntity1 = coffeeEntity.get();
+            coffeeEntity1.setName(coffeeDTO.getName());
+            coffeeEntity1.setDescription(coffeeDTO.getDescription());
+            coffeeEntity1.setPrice(coffeeDTO.getPrice());
+            coffeeEntity1.setImage64(coffeeDTO.getImage64());
+            coffeeRepository.save(coffeeEntity1);
+            return coffeeEntity1;
+        }else{
+            return null;
+        }
+
+
+
     }
 
     // Método para convertir TestimonialsEntity a TestimonialDTO

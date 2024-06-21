@@ -8,12 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import cl.ucm.coffee.persitence.entity.CoffeeEntity;
-import cl.ucm.coffee.persitence.repository.CoffeeRepository;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
 @Controller
@@ -25,15 +19,32 @@ public class CoffeeController {
     private CoffeeService coffeeService;
 
     @GetMapping("/")
-    public @ResponseBody List<CoffeeDTO> Getcoffes(){
+    public @ResponseBody List<CoffeeDTO> Getcoffees(){
 
         
         return coffeeService.findAll();
     }
-    @PostMapping("/save")
-    public ResponseEntity<String> coffe(){
+    @PostMapping("/")
+    public ResponseEntity<String> saveCoffee( @RequestBody CoffeeDTO coffeeDTO){
+        System.out.println("controlador");
+
+        coffeeService.saveCoffee(coffeeDTO);
         
-        return ResponseEntity.ok("chao");
+        return ResponseEntity.ok("cafe guardado");
+    }
+
+    @DeleteMapping("/{idCoffee}")
+    public ResponseEntity<String> deleteCoffee(@PathVariable Integer idCoffee){
+//        System.out.println("controlador"+idCoffee);
+        coffeeService.deleteCoffee(idCoffee);
+        return ResponseEntity.ok("cafe eliminado");
+    }
+
+    @PutMapping("/{idCoffee}")
+    public ResponseEntity<String> putCoffee(@PathVariable Integer idCoffee, @RequestBody CoffeeDTO coffeeDTO){
+        coffeeService.updateCoffee(coffeeDTO,idCoffee);
+
+        return ResponseEntity.ok("cafe actualizado");
     }
 
 }
