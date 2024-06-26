@@ -14,5 +14,5 @@ public class CoffeeDTO {
     private String name;
     private String description;
     private int price;
-    private String image64;
+    private byte[] image64;
 }

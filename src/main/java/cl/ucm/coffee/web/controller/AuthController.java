@@ -1,6 +1,7 @@
 package cl.ucm.coffee.web.controller;
 
 import cl.ucm.coffee.service.dto.LoginDto;
+import cl.ucm.coffee.service.dto.UserDto;
 import cl.ucm.coffee.web.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -32,6 +33,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
+        System.out.println(loginDto.getUsername());
         UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(login);
 
@@ -43,5 +45,14 @@ public class AuthController {
         map.put("token",jwt);
         return ResponseEntity.ok(map);
         //return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
+        System.out.println(userDto.getUsername());
+        System.out.println(userDto.getPassword());
+        System.out.println(userDto.getEmail());
+
+        return ResponseEntity.ok("hola");
     }
 }

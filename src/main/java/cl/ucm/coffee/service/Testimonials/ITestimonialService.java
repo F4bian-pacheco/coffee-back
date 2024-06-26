@@ -8,5 +8,6 @@ import java.util.List;
 
 public interface ITestimonialService {
     public List<TestimonialDTO> findAll();
+    public void save(TestimonialsEntity testimonialsEntity);
 
 }

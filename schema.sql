@@ -62,3 +62,6 @@ VALUES
     (1, 'Great coffee, loved the aroma!', 'alice'),
     (2, 'This coffee is so smooth and rich.', 'bob'),
     (3, 'Excellent quality and flavor.', 'alice')
+
+
+alter table coffee modify COLUMN image64 blob

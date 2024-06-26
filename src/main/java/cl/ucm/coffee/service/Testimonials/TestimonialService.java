@@ -27,4 +27,9 @@ public class TestimonialService implements ITestimonialService{
         }
         return testimonialDTOS;
     }
+
+    public void save(TestimonialsEntity testimonialsEntity) {
+        System.out.println("TestimonialsEntity: " + testimonialsEntity);
+        testimonialRepository.save(testimonialsEntity);
+    }
 }

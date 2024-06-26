@@ -39,6 +39,8 @@ public class SecurityConfig {
                 //.requestMatchers(HttpMethod.GET, "/api/coffee/**").hasAnyRole("ADMIN", "CUSTOMER")
                 .requestMatchers(HttpMethod.POST, "/api/coffee/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT , "/api/coffee/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET,"/api/testimonials/**").hasAnyRole("ADMIN","CUSTOMER")
+                .requestMatchers(HttpMethod.POST,"/api/testimonials/**").hasRole("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
