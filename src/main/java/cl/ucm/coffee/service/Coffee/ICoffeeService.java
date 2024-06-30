@@ -15,4 +15,6 @@ public interface ICoffeeService {
     public CoffeeDTO findById(Integer coffeeId);
     public CoffeeEntity updateCoffee(CoffeeDTO coffeeDTO, Integer coffeeId);
 
+    public CoffeeDTO findByName(String name);
+
 }
