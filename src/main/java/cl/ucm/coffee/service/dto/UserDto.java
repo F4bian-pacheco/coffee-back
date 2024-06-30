@@ -8,7 +8,7 @@ public class UserDto {
     private String username;
     private String password;
     private String email;
+    private  Boolean disabled;
     private Boolean locked;
-    private Boolean disabled;
 
 }

@@ -1,5 +1,9 @@
 package cl.ucm.coffee.web.controller;
 
+import cl.ucm.coffee.persitence.entity.UserEntity;
+import cl.ucm.coffee.persitence.entity.UserRoleEntity;
+import cl.ucm.coffee.persitence.repository.RolRepository;
+import cl.ucm.coffee.persitence.repository.UserRepository;
 import cl.ucm.coffee.service.dto.LoginDto;
 import cl.ucm.coffee.service.dto.UserDto;
 import cl.ucm.coffee.web.config.JwtUtil;
@@ -9,50 +13,87 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
-    private  AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
     @Autowired
-    private  JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
-//    @Autowired
-//    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-//        this.authenticationManager = authenticationManager;
-//        this.jwtUtil = jwtUtil;
-//    }
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    RolRepository rolRepository;
+
+    // @Autowired
+    // public AuthController(AuthenticationManager authenticationManager, JwtUtil
+    // jwtUtil) {
+    // this.authenticationManager = authenticationManager;
+    // this.jwtUtil = jwtUtil;
+    // }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto loginDto) {
         System.out.println(loginDto.getUsername());
-        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword());
+        String username = loginDto.getUsername();
+
+        UserEntity userEntity = userRepository.findByUsername(username);
+
+        List<String> roles = userEntity.getRoles().stream().map(UserRoleEntity::getRole).toList();
+
+        UsernamePasswordAuthenticationToken login = new UsernamePasswordAuthenticationToken(loginDto.getUsername(),
+                loginDto.getPassword());
         Authentication authentication = this.authenticationManager.authenticate(login);
 
-       // System.out.println(authentication.isAuthenticated());
-       // System.out.println(authentication.getPrincipal());
+        // System.out.println(authentication.isAuthenticated());
+        // System.out.println(authentication.getPrincipal());
 
-        String jwt = this.jwtUtil.create(loginDto.getUsername());
+        String jwt = this.jwtUtil.create(loginDto.getUsername(), roles.get(0));
         Map map = new HashMap<>();
-        map.put("token",jwt);
+        map.put("token", jwt);
         return ResponseEntity.ok(map);
-        //return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
+        // return ResponseEntity.ok().header(HttpHeaders.AUTHORIZATION, jwt).build();
     }
 
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody UserDto userDto) {
-        System.out.println(userDto.getUsername());
-        System.out.println(userDto.getPassword());
-        System.out.println(userDto.getEmail());
 
-        return ResponseEntity.ok("hola");
+        if (userRepository.existsByUsername(userDto.getUsername())) {
+            return ResponseEntity.badRequest().body("Nombre de usuario ya existe");
+        }
+
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+        UserEntity userEntity = new UserEntity();
+        userEntity.setUsername(userDto.getUsername());
+        userEntity.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        userEntity.setEmail(userDto.getEmail());
+        userEntity.setDisabled(false);
+        userEntity.setLocked(false);
+
+        userRepository.save(userEntity);
+
+        UserRoleEntity userRoleEntity = new UserRoleEntity();
+        userRoleEntity.setUsername(userDto.getUsername());
+        userRoleEntity.setRole("CUSTOMER");
+        userRoleEntity.setGrantedDate(LocalDateTime.now());
+
+        rolRepository.save(userRoleEntity);
+
+        return ResponseEntity.ok("Usuario registrado correctamente");
     }
 }
