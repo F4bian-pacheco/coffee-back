@@ -8,14 +8,18 @@ import cl.ucm.coffee.service.dto.LoginDto;
 import cl.ucm.coffee.service.dto.UserDto;
 import cl.ucm.coffee.web.config.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,6 +28,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,7 +56,17 @@ public class AuthController {
         System.out.println(loginDto.getUsername());
         String username = loginDto.getUsername();
 
-        UserEntity userEntity = userRepository.findByUsername(username);
+        Optional<UserEntity> userEntityOptional = userRepository.findByUsername(username);
+
+        if (!userEntityOptional.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Usuario no encontrado");
+        }
+        
+        UserEntity userEntity = userEntityOptional.get();
+
+        if (userEntity.getDisabled()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("El usuario está deshabilitado");
+        }
 
         List<String> roles = userEntity.getRoles().stream().map(UserRoleEntity::getRole).toList();
 
@@ -95,5 +110,27 @@ public class AuthController {
         rolRepository.save(userRoleEntity);
 
         return ResponseEntity.ok("Usuario registrado correctamente");
+    }
+
+    @PutMapping("/{username}/{action}")
+    public ResponseEntity<String> updateUserDisabledStatus(@PathVariable String username, @PathVariable String action) {
+        Optional<UserEntity> userEntityOptional = userRepository.findById(username);
+        
+        if (userEntityOptional.isPresent()) {
+            UserEntity userEntity = userEntityOptional.get();
+            if ("disable".equalsIgnoreCase(action)) {
+                userEntity.setDisabled(true);
+                userRepository.save(userEntity);
+                return ResponseEntity.ok("Usuario deshabilitado correctamente");
+            } else if ("enable".equalsIgnoreCase(action)) {
+                userEntity.setDisabled(false);
+                userRepository.save(userEntity);
+                return ResponseEntity.ok("Usuario habilitado correctamente");
+            } else {
+                return ResponseEntity.badRequest().body("Acción no válida. Use 'disable' o 'enable'");
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado");
+        }
     }
 }
