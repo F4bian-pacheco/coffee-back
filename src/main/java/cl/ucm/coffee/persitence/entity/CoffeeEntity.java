@@ -29,7 +29,7 @@ public class CoffeeEntity {
     private int price;
 
     @Lob
-    private  byte[] image64;
+    private String image64;
 
     @OneToMany(mappedBy = "coffee", fetch = FetchType.EAGER)
     private List<TestimonialsEntity> testimonials;

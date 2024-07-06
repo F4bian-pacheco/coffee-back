@@ -7,7 +7,9 @@ import cl.ucm.coffee.service.Testimonials.TestimonialService;
 import cl.ucm.coffee.service.dto.CoffeeDTO;
 import cl.ucm.coffee.service.dto.TestimonialDTO;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,32 +27,32 @@ public class TestimonialsController {
     CoffeeService coffeeService;
 
     @GetMapping("/")
-    public @ResponseBody List<TestimonialDTO> getTestimonials(){
+    public @ResponseBody List<TestimonialDTO> getTestimonials() {
 
         return testimonialService.findAll();
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> saveTestimonial(@RequestBody TestimonialDTO testimonialDTO){
+    public ResponseEntity<Map> saveTestimonial(@RequestBody TestimonialDTO testimonialDTO) {
         TestimonialsEntity testimonialsEntity = new TestimonialsEntity();
-//        CoffeeDTO coffeeDTO = coffeeService.findById(testimonialDTO.getIdCoffee());
-//        CoffeeEntity coffeeEntity = new CoffeeEntity();
-//        coffeeEntity.setIdCoffee(coffeeDTO.getIdCoffee());
-//        coffeeEntity.setName(coffeeDTO.getName());
-//        coffeeEntity.setDescription(coffeeDTO.getDescription());
-//        coffeeEntity.setPrice(coffeeDTO.getPrice());
-//        coffeeEntity.setImage64(coffeeDTO.getImage64());
 
-
-//        testimonialsEntity.setIdTestimonials(testimonialDTO.getIdTestimonials());
+        // testimonialsEntity.setIdTestimonials(testimonialDTO.getIdTestimonials());
         testimonialsEntity.setTestimonial(testimonialDTO.getTestimonial());
         testimonialsEntity.setUsername(testimonialDTO.getUsername());
         testimonialsEntity.setIdCoffee(testimonialDTO.getIdCoffee());
-//        testimonialsEntity.setCoffee(coffeeEntity);
+        // testimonialsEntity.setCoffee(coffeeEntity);
+        try {
+            testimonialService.save(testimonialsEntity);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "testimonio creado correctamente");
+            return ResponseEntity.ok(response);
 
-        testimonialService.save(testimonialsEntity);
-
-        return ResponseEntity.ok("testimonio creado correctamente");
+        } catch (Exception e) {
+            
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al crear el testimonio: " + e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
 
     }
 }

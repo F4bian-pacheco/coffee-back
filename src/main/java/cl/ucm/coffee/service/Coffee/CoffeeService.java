@@ -4,6 +4,7 @@ import cl.ucm.coffee.persitence.entity.CoffeeEntity;
 import cl.ucm.coffee.persitence.entity.TestimonialsEntity;
 import cl.ucm.coffee.persitence.repository.CoffeeRepository;
 import cl.ucm.coffee.service.dto.CoffeeDTO;
+import cl.ucm.coffee.service.dto.CoffeeDtoPut;
 import cl.ucm.coffee.service.dto.CoffeeTestDto;
 import cl.ucm.coffee.service.dto.TestimonialDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,7 @@ public class CoffeeService implements ICoffeeService {
         coffeeRepository.deleteById(idCoffee);
     }
 
-    public CoffeeEntity updateCoffee(CoffeeDTO coffeeDTO, Integer idCoffee) {
+    public CoffeeEntity updateCoffee(CoffeeDtoPut coffeeDTO, Integer idCoffee) {
         Optional<CoffeeEntity> coffeeEntity = coffeeRepository.findById(idCoffee);
         if (coffeeEntity.isPresent()) {
             CoffeeEntity coffeeEntity1 = coffeeEntity.get();

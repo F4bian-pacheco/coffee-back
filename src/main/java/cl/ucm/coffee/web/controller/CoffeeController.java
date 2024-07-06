@@ -3,6 +3,7 @@ package cl.ucm.coffee.web.controller;
 import cl.ucm.coffee.persitence.entity.CoffeeEntity;
 import cl.ucm.coffee.service.Coffee.CoffeeService;
 import cl.ucm.coffee.service.dto.CoffeeDTO;
+import cl.ucm.coffee.service.dto.CoffeeDtoPut;
 import cl.ucm.coffee.service.dto.CoffeeTestDto;
 import jakarta.xml.bind.ValidationException;
 
@@ -12,7 +13,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RestController
@@ -23,7 +26,7 @@ public class CoffeeController {
     private CoffeeService coffeeService;
 
     @GetMapping("/")
-    public ResponseEntity<List<CoffeeDTO>> Getcoffees() {
+    public ResponseEntity<List<CoffeeDTO>> create() {
 
         try {
             List<CoffeeDTO> coffees = coffeeService.findAll();
@@ -56,41 +59,56 @@ public class CoffeeController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<String> saveCoffee(@RequestBody CoffeeDTO coffeeDTO) {
+    public ResponseEntity<Map> saveCoffee(@RequestBody CoffeeDTO coffeeDTO) {
         try {
             coffeeService.saveCoffee(coffeeDTO);
-            return ResponseEntity.ok("Café guardado exitosamente");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Café guardado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Captura cualquier otra excepción y devuelve un mensaje de error genérico
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al guardar el café");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al guardar el café: " + e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
-    @PostMapping("/image")
-    public ResponseEntity<String> saveImage(@RequestBody byte[] Image, @RequestParam String coffeeId) {
-        // CoffeeEntity coffeeEntity = coffeeService.
+    // @PostMapping("/image")
+    // public ResponseEntity<String> saveImage(@RequestBody byte[] Image, @RequestParam String coffeeId) {
+    //     // CoffeeEntity coffeeEntity = coffeeService.
 
-    }
+    // }
 
     @DeleteMapping("/{idCoffee}")
-    public ResponseEntity<String> deleteCoffee(@PathVariable Integer idCoffee) {
+    public ResponseEntity<Map> deleteCoffee(@PathVariable Integer idCoffee) {
         try {
             coffeeService.deleteCoffee(idCoffee);
-            return ResponseEntity.ok("Café eliminado correctamente");
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Café eliminado correctamente");
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al eliminar el café: " + e.getMessage());
             // Captura cualquier excepción y devuelve un mensaje de error genérico
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al eliminar el café");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     @PutMapping("/{idCoffee}")
-    public ResponseEntity<String> putCoffee(@PathVariable Integer idCoffee, @RequestBody CoffeeDTO coffeeDTO) {
+    public ResponseEntity<Map> putCoffee(@PathVariable Integer idCoffee, @RequestBody CoffeeDtoPut coffeeDTOPut) throws ValidationException {
         try {
-            coffeeService.updateCoffee(coffeeDTO, idCoffee);
-            return ResponseEntity.ok("Café actualizado correctamente");
+            coffeeService.updateCoffee(coffeeDTOPut, idCoffee);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Café actualizado correctamente");
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             // Captura cualquier excepción y devuelve un mensaje de error genérico
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar el café");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Error al actualizar el café");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 

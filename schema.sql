@@ -64,4 +64,6 @@ VALUES
     (3, 'Excellent quality and flavor.', 'alice')
 
 
-alter table coffee modify COLUMN image64 blob
+alter table coffee modify COLUMN image64 MEDIUMBLOB 
+
+alter table coffee modify COLUMN image64 TEXT
